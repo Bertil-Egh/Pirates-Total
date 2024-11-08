@@ -6,7 +6,7 @@ pygame.init()
 
 width, height = 800, 600
 screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Gorms Program")
+pygame.display.set_caption("PiratKopierat Program")
 
 WHITE = (255,255,255)
 BLUE = (0,0,255)
@@ -40,7 +40,7 @@ while True:
     if keys[pygame.K_UP]:
         sprite.move(0,-5)
     if keys[pygame.K_DOWN]:
-        sprite.move(0,5)
+        sprite.move(0,50)
     
     screen.fill(WHITE)
 
@@ -49,3 +49,5 @@ while True:
     pygame.display.flip()
 
     pygame.time.Clock().tick(60)
+
+print("PikoPikoPikoPIko")
