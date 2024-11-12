@@ -73,6 +73,16 @@ while True:
     if keys[pygame.K_DOWN]:
         dy = 1   # Use 1 to indicate downward movement
 
+
+    if keys[pygame.K_a]:
+        dx = -1  # Use -1 to indicate left movement
+    if keys[pygame.K_d]:
+        dx = 1   # Use 1 to indicate right movement
+    if keys[pygame.K_w]:
+        dy = -1  # Use -1 to indicate upward movement
+    if keys[pygame.K_s]:
+        dy = 1   # Use 1 to indicate downward movement
+
     # Calculate the length of the movement vector
     length = (dx**2 + dy**2) ** 0.5
 
