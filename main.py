@@ -1,5 +1,6 @@
 import pygame
 import sys
+import math
 
 # Initialize Pygame
 pygame.init()
@@ -15,8 +16,9 @@ BLUE = (0, 0, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 
-# Define a constant speed
-SPEED = 5
+max_speed = 2
+speed = 2
+direction = 0
 
 # Create a sprite class
 class Sprite:
@@ -25,7 +27,12 @@ class Sprite:
         self.image.fill(BLUE)  # Fill it with blue color
         self.rect = self.image.get_rect(topleft=(x, y))  # Get the rectangle for positioning
 
-    def move(self, dx, dy):
+    def move(self, angle, distance):
+        radians = math.radians(angle)
+
+        dx = distance * math.cos(radians)
+        dy = distance * math.sin(radians)
+
         self.rect.x += dx
         self.rect.y += dy
 
@@ -43,18 +50,11 @@ class Box:
         surface.blit(self.image, self.rect)
         pygame.draw.rect(surface, RED, self.rect, 2)
 
-# Create a sprite instance
-cube = Box(300, 200)  # Adjusted position for better visibility
+# Create sprite instance
+cube = Box(300, 200)
 sprite = Sprite(375, 275)
 camera_x, camera_y = 0, 0
 
-# Map dimensions
-map_width, map_height = 1600, 1200  # Larger than the window size
-
-# Define a constant speed
-SPEED = 5
-
-# Inside the main loop, replace the movement logic with the following:
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -63,50 +63,21 @@ while True:
     
     # Get the keys pressed
     keys = pygame.key.get_pressed()
-    dx, dy = 0, 0
-    if keys[pygame.K_LEFT]:
-        dx = -1  # Use -1 to indicate left movement
-    if keys[pygame.K_RIGHT]:
-        dx = 1   # Use 1 to indicate right movement
-    if keys[pygame.K_UP]:
-        dy = -1  # Use -1 to indicate upward movement
-    if keys[pygame.K_DOWN]:
-        dy = 1   # Use 1 to indicate downward movement
-
-
-    if keys[pygame.K_a]:
-        dx = -1  # Use -1 to indicate left movement
-    if keys[pygame.K_d]:
-        dx = 1   # Use 1 to indicate right movement
-    if keys[pygame.K_w]:
-        dy = -1  # Use -1 to indicate upward movement
-    if keys[pygame.K_s]:
-        dy = 1   # Use 1 to indicate downward movement
-
-    # Calculate the length of the movement vector
-    length = (dx**2 + dy**2) ** 0.5
-
-    # Normalize the movement vector if it's not zero
-    if length > 0:
-        dx /= length  # Normalize x component
-        dy /= length  # Normalize y component
-
-    # Scale the normalized vector by the speed
-    dx *= SPEED
-    dy *= SPEED
-
-    # Store the original position
-    original_rect = sprite.rect.copy()
     
-    # Move the sprite
-    sprite.move(dx, dy)
+    # Update direction based on left and right keys
+    if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+        direction -= 5  # Turn left
+    if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+        direction += 5  # Turn right
+
+    # Move the sprite in the current direction
+    sprite.move(direction, speed)
 
     # Check for collision with the box
-    # Check for collision with the box
-    if sprite.rect.colliderect(cube.rect):
+    if sprite.rect.colliderect(cube.rect): # The collission has to be fixed
         # Calculate the overlap
-        overlap_x = (sprite.rect.right - cube.rect.left) if dx > 0 else (sprite.rect.left - cube.rect.right)
-        overlap_y = (sprite.rect.bottom - cube.rect.top) if dy > 0 else (sprite.rect.top - cube.rect.bottom)
+        overlap_x = (sprite.rect.right - cube.rect.left) if speed > 0 else (sprite.rect.left - cube.rect.right)
+        overlap_y = (sprite.rect.bottom - cube.rect.top) if speed > 0 else (sprite.rect.top - cube.rect.bottom)
 
         # Determine the minimum overlap
         if abs(overlap_x) < abs(overlap_y):
@@ -116,6 +87,17 @@ while True:
             # Resolve collision in the y direction
             sprite.rect.y -= overlap_y
 
+        # Assuming you have a variable `angle` that represents the direction of movement
+        # Calculate the angle in radians
+        radians = math.radians(direction)
+
+        # Calculate the movement vector based on the angle
+        move_x = overlap_x * math.cos(radians) + overlap_y * math.sin(radians)
+        move_y = overlap_x * -math.sin(radians) + overlap_y * math.cos(radians)
+
+        # Move the sprite back relative to its movement direction
+        sprite.rect.x -= move_x
+        sprite.rect.y -= move_y
 
     # Update camera position to follow the sprite
     camera_x = sprite.rect.centerx - width // 2
