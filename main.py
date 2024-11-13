@@ -1,5 +1,8 @@
 import pygame
 import sys
+import math
+import pymunk
+import pymunk.pygame_util
 
 # Initialize Pygame
 pygame.init()
@@ -15,8 +18,9 @@ BLUE = (0, 0, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 
-# Define a constant speed
-SPEED = 5
+max_speed = 2
+speed = 2
+direction = 0
 
 # Create a sprite class
 class Sprite:
@@ -25,7 +29,12 @@ class Sprite:
         self.image.fill(BLUE)  # Fill it with blue color
         self.rect = self.image.get_rect(topleft=(x, y))  # Get the rectangle for positioning
 
-    def move(self, dx, dy):
+    def move(self, angle, distance):
+        radians = math.radians(angle)
+
+        dx = distance * math.cos(radians)
+        dy = distance * math.sin(radians)
+
         self.rect.x += dx
         self.rect.y += dy
 
@@ -43,18 +52,11 @@ class Box:
         surface.blit(self.image, self.rect)
         pygame.draw.rect(surface, RED, self.rect, 2)
 
-# Create a sprite instance
-cube = Box(300, 200)  # Adjusted position for better visibility
+# Create sprite instance
+cube = Box(300, 200)
 sprite = Sprite(375, 275)
 camera_x, camera_y = 0, 0
 
-# Map dimensions
-map_width, map_height = 1600, 1200  # Larger than the window size
-
-# Define a constant speed
-SPEED = 5
-
-# Inside the main loop, replace the movement logic with the following:
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -63,58 +65,43 @@ while True:
     
     # Get the keys pressed
     keys = pygame.key.get_pressed()
-    dx, dy = 0, 0
-    if keys[pygame.K_LEFT]:
-        dx = -1  # Use -1 to indicate left movement
-    if keys[pygame.K_RIGHT]:
-        dx = 1   # Use 1 to indicate right movement
-    if keys[pygame.K_UP]:
-        dy = -1  # Use -1 to indicate upward movement
-    if keys[pygame.K_DOWN]:
-        dy = 1   # Use 1 to indicate downward movement
-
-
-    if keys[pygame.K_a]:
-        dx = -1  # Use -1 to indicate left movement
-    if keys[pygame.K_d]:
-        dx = 1   # Use 1 to indicate right movement
-    if keys[pygame.K_w]:
-        dy = -1  # Use -1 to indicate upward movement
-    if keys[pygame.K_s]:
-        dy = 1   # Use 1 to indicate downward movement
-
-    # Calculate the length of the movement vector
-    length = (dx**2 + dy**2) ** 0.5
-
-    # Normalize the movement vector if it's not zero
-    if length > 0:
-        dx /= length  # Normalize x component
-        dy /= length  # Normalize y component
-
-    # Scale the normalized vector by the speed
-    dx *= SPEED
-    dy *= SPEED
-
-    # Store the original position
-    original_rect = sprite.rect.copy()
     
-    # Move the sprite
-    sprite.move(dx, dy)
+    # Update direction based on left and right keys
+    if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+        direction -= 5  # Turn left
+    if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+        direction += 5  # Turn right
 
-    # Check for collision with the box
-    # Check for collision with the box
+    original_position = sprite.rect.topleft
+
+    # Move the sprite in the current direction
+    sprite.move(direction, speed)
+
+    # Check for collision with the cube
     if sprite.rect.colliderect(cube.rect):
-        # Calculate the overlap
-        overlap_x = (sprite.rect.right - cube.rect.left) if dx > 0 else (sprite.rect.left - cube.rect.right)
-        overlap_y = (sprite.rect.bottom - cube.rect.top) if dy > 0 else (sprite.rect.top - cube.rect.bottom)
+        # Calculate the overlap in both directions
+        overlap_x = sprite.rect.right - cube.rect.left if sprite.rect.right > cube.rect.left else cube.rect.right - sprite.rect.left
+        overlap_y = sprite.rect.bottom - cube.rect.top if sprite.rect.bottom > cube.rect.top else cube.rect.bottom - sprite.rect.top
 
-        # Determine the minimum overlap
-        if abs(overlap_x) < abs(overlap_y):
-            # Resolve collision in the x direction
-            sprite.rect.x -= overlap_x
+        # Determine the direction of the collision
+        if overlap_x < overlap_y:
+            # Slide horizontally
+            if sprite.rect.centerx < cube.rect.centerx:
+                sprite.rect.right = cube.rect.left  # Slide left
+            else:
+                sprite.rect.left = cube.rect.right  # Slide right
         else:
-            # Resolve collision in the y direction
-            sprite.rect.y -= overlap_y
+            # Slide vertically
+            if sprite.rect.centery < cube.rect.centery:
+                sprite.rect.bottom = cube.rect.top  # Slide up
+            else:
+                sprite.rect.top = cube.rect.bottom  # Slide down
+
+        # Reset the original position to the new position after sliding
+        original_position = sprite.rect.topleft
+    else:
+        # If no collision, update the original position
+        original_position = sprite.rect.topleft
 
 
     # Update camera position to follow the sprite
