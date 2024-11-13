@@ -1,6 +1,8 @@
 import pygame
 import sys
 import math
+import pymunk
+import pymunk.pygame_util
 
 # Initialize Pygame
 pygame.init()
@@ -70,34 +72,37 @@ while True:
     if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
         direction += 5  # Turn right
 
+    original_position = sprite.rect.topleft
+
     # Move the sprite in the current direction
     sprite.move(direction, speed)
 
-    # Check for collision with the box
-    if sprite.rect.colliderect(cube.rect): # The collission has to be fixed
-        # Calculate the overlap
-        overlap_x = (sprite.rect.right - cube.rect.left) if speed > 0 else (sprite.rect.left - cube.rect.right)
-        overlap_y = (sprite.rect.bottom - cube.rect.top) if speed > 0 else (sprite.rect.top - cube.rect.bottom)
+    # Check for collision with the cube
+    if sprite.rect.colliderect(cube.rect):
+        # Calculate the overlap in both directions
+        overlap_x = sprite.rect.right - cube.rect.left if sprite.rect.right > cube.rect.left else cube.rect.right - sprite.rect.left
+        overlap_y = sprite.rect.bottom - cube.rect.top if sprite.rect.bottom > cube.rect.top else cube.rect.bottom - sprite.rect.top
 
-        # Determine the minimum overlap
-        if abs(overlap_x) < abs(overlap_y):
-            # Resolve collision in the x direction
-            sprite.rect.x -= overlap_x
+        # Determine the direction of the collision
+        if overlap_x < overlap_y:
+            # Slide horizontally
+            if sprite.rect.centerx < cube.rect.centerx:
+                sprite.rect.right = cube.rect.left  # Slide left
+            else:
+                sprite.rect.left = cube.rect.right  # Slide right
         else:
-            # Resolve collision in the y direction
-            sprite.rect.y -= overlap_y
+            # Slide vertically
+            if sprite.rect.centery < cube.rect.centery:
+                sprite.rect.bottom = cube.rect.top  # Slide up
+            else:
+                sprite.rect.top = cube.rect.bottom  # Slide down
 
-        # Assuming you have a variable `angle` that represents the direction of movement
-        # Calculate the angle in radians
-        radians = math.radians(direction)
+        # Reset the original position to the new position after sliding
+        original_position = sprite.rect.topleft
+    else:
+        # If no collision, update the original position
+        original_position = sprite.rect.topleft
 
-        # Calculate the movement vector based on the angle
-        move_x = overlap_x * math.cos(radians) + overlap_y * math.sin(radians)
-        move_y = overlap_x * -math.sin(radians) + overlap_y * math.cos(radians)
-
-        # Move the sprite back relative to its movement direction
-        sprite.rect.x -= move_x
-        sprite.rect.y -= move_y
 
     # Update camera position to follow the sprite
     camera_x = sprite.rect.centerx - width // 2
