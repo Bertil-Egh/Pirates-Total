@@ -93,8 +93,8 @@ while True:
     space.step(dt)
 
     
-    camera_x = sprite.body.position.x - width // 2
-    camera_y = sprite.body.position.y - height // 2
+    camera_x = sprite.body.position.x - width // 2 + sprite.rect.width // 2
+    camera_y = sprite.body.position.y - height // 2 + sprite.rect.width // 2
 
     
     screen.fill(WHITE)
