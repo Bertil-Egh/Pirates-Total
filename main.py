@@ -15,6 +15,7 @@ WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
+BLACK = (0, 0)
 
 speed = 4
 direction = 0
@@ -43,9 +44,11 @@ class Sprite:
         force_y = distance * math.sin(radians) * 25
 
         self.body.apply_force_at_local_point((force_x, force_y))
-
+        
         # Clamp the velocity to the maximum speed
+
         current_velocity = self.body.velocity
+
         speed = math.sqrt(current_velocity[0]**2 + current_velocity[1]**2)
 
         if speed > self.max_speed:
@@ -54,14 +57,13 @@ class Sprite:
             self.body.velocity = (normalized_velocity[0] * self.max_speed, normalized_velocity[1] * self.max_speed)
 
 
-    def draw(self, surface):
-        # Update the rect position based on the body's position
-        self.rect.center = self.body.position
-        # Rotate the image based on the body's angle
-        rotated_image = pygame.transform.rotate(self.image, -math.degrees(self.body.angle))
-        new_rect = rotated_image.get_rect(center=self.rect.center)
-        surface.blit(rotated_image, new_rect.topleft)
 
+
+    def draw(self, surface, camera_x, camera_y):
+        # Update the rectangle position based on the camera position
+        self.rect.topleft = (self.body.position.x - camera_x, self.body.position.y - camera_y)
+        surface.blit(self.image, self.rect)
+        pygame.draw.rect(surface, RED, self.rect, 2)
 
 class Box:
     def __init__(self, x, y):
@@ -74,8 +76,11 @@ class Box:
         self.body.position = (x, y)
         space.add(self.body, self.shape)
 
-    def draw(self, surface):
-        self.rect.topleft = self.body.position
+
+    def draw(self, surface, camera_x, camera_y):
+        # Update the rectangle position based on the camera position
+        self.rect.topleft = (self.body.position.x - camera_x, self.body.position.y - camera_y)
+
         surface.blit(self.image, self.rect)
         pygame.draw.rect(surface, RED, self.rect, 2)
 
@@ -107,17 +112,15 @@ while True:
     sprite.move(speed, direction)
 
     space.step(dt)
+    
+    camera_x = sprite.body.position.x - width // 2 + sprite.rect.width // 2
+    camera_y = sprite.body.position.y - height // 2 + sprite.rect.width // 2
 
-    # Update camera position to follow the sprite
-    camera_x = sprite.rect.centerx - width // 2
-    camera_y = sprite.rect.centery - height // 2  # Corrected to height
-
-    # Fill the screen with white
+    
     screen.fill(WHITE)
 
-    # Draw the sprite (adjust position based on camera)
-    sprite.draw(screen)
-    cube.draw(screen)
+    
+    sprite.draw(screen, camera_x, camera_y)
+    cube.draw(screen, camera_x, camera_y)
 
-    # Update the display
     pygame.display.flip()
