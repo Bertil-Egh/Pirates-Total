@@ -8,6 +8,8 @@ pygame.init()
 
 width, height = 800, 600
 screen = pygame.display.set_mode((width, height))
+ship_image = pygame.image.load('PiratesTotalShipSide1.png')
+ship_image = pygame.transform.scale(ship_image, (100, 100))
 pygame.display.set_caption("Gorms Program")
 clock = pygame.time.Clock()
 
@@ -25,11 +27,9 @@ space.gravity = (0, 0)
 
 class Sprite:
     def __init__(self, x, y):
-        self.image = pygame.Surface((50, 50), pygame.SRCALPHA)
-        self.image.fill((0, 0, 0, 0))
-        pygame.draw.rect(self.image, BLUE, (0, 0, 50, 50))
+        self.image = ship_image
         self.rect = self.image.get_rect(center=(x, y))
-        self.body = pymunk.Body(1, pymunk.moment_for_box(1, (50, 50)))
+        self.body = pymunk.Body(1, pymunk.moment_for_box(1, (100, 100)))
         self.body.position = (x, y)
         self.shape = pymunk.Poly.create_box(self.body)
         self.shape.elasticity = 0.99
@@ -50,7 +50,6 @@ class Sprite:
     def draw(self, surface, camera_x, camera_y):
         self.rect.topleft = (self.body.position.x - camera_x, self.body.position.y - camera_y)
         surface.blit(self.image, self.rect)
-        pygame.draw.rect(surface, RED, self.rect, 2)
 
 class Box:
     def __init__(self, x, y):
