@@ -1,13 +1,17 @@
 import pygame
 import sys
 import math
+import random
 import pymunk
 import pymunk.pygame_util
 
 pygame.init()
 
 width, height = 800, 600
+MAP_WIDTH = 1600  # Width of the map
+MAP_HEIGHT = 1200  # Height of the map
 screen = pygame.display.set_mode((width, height))
+
 ship_image = pygame.image.load("PiratesTotalShipSide2.png")
 ship_image1 = pygame.image.load("PiratesTotalShipSide1.png")
 ship_image2 = pygame.image.load("PiratesTotalShipSide2.png")
@@ -34,6 +38,8 @@ WATERBLUE = (0, 195, 245)
 speed = 4
 direction = 0
 
+num_islands = 10  # Number of islands to generate
+
 space = pymunk.Space()
 space.gravity = (0, 0)
 
@@ -42,7 +48,7 @@ class Sprite:
     def __init__(self, x, y):
         self.image = ship_image
         self.rect = self.image.get_rect(center=(x, y))
-        self.body = pymunk.Body(1, pymunk.moment_for_box(1, (100, 100)))
+        self.body = pymunk.Body(1, pymunk.moment_for_box(1, (50, 50)))
         self.body.position = (x, y)
         self.shape = pymunk.Poly.create_box(self.body)
         self.shape.elasticity = 0.99
@@ -131,6 +137,43 @@ class Box:
         surface.blit(self.image, self.rect)
         pygame.draw.rect(surface, RED, self.rect, 2)
 
+def generate_random_polygon(num_vertices, radius):
+    """Generate a random polygon with a specified number of vertices and radius."""
+    angle_step = 360 / num_vertices
+    vertices = []
+    
+    for i in range(num_vertices):
+        angle = math.radians(i * angle_step + random.uniform(-angle_step / 2, angle_step / 2))
+        r = random.uniform(radius * 0.5, radius)  # Randomize the distance from the center
+        x = r * math.cos(angle)
+        y = r * math.sin(angle)
+        vertices.append((x, y))
+    
+    return vertices
+
+
+def generate_islands(num_islands):
+    islands = []
+    for _ in range(num_islands):
+        # Randomly generate the number of vertices for the island
+        num_vertices = random.randint(3, 8)  # Random number of vertices between 3 and 8
+        radius = random.randint(50, 150)  # Random radius for the shape
+        
+        # Generate random polygon vertices
+        vertices = generate_random_polygon(num_vertices, radius)
+        
+        # Randomly position the island within the map area
+        x = random.randint(0 + radius, MAP_WIDTH - radius)
+        y = random.randint(0 + radius, MAP_HEIGHT - radius)
+        
+        # Create the island and add it to the list
+        islands.append(Island(vertices, x, y))
+    
+    return islands
+
+
+islands = generate_islands(num_islands)
+
 island_vertices = [(10, 0), (100, 5), (100, 50), (4, 50)]
 
 cube = Box(300, 200)
@@ -164,4 +207,6 @@ while True:
     island1.draw(screen, camera_x, camera_y)
     island2.draw(screen, camera_x, camera_y)
     cube.draw(screen, camera_x, camera_y)
+    for island in islands:
+        island.draw(screen, camera_x, camera_y)
     pygame.display.flip()
