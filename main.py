@@ -8,12 +8,13 @@ pygame.init()
 
 width, height = 800, 600
 screen = pygame.display.set_mode((width, height))
-
+ship_image = pygame.image.load('PiratesTotalShipSide2.png')
 ship_image1 = pygame.image.load('PiratesTotalShipSide1.png')
 ship_image2 = pygame.image.load('PiratesTotalShipSide2.png')
 ship_image3 = pygame.image.load('PiratesTotalShipFront.png')
 ship_image4 = pygame.image.load('PiratesTotalShipBack.png')
 
+ship_image = pygame.transform.scale(ship_image, (100, 100))
 ship_image1 = pygame.transform.scale(ship_image1, (100, 100))
 ship_image2 = pygame.transform.scale(ship_image2, (100, 100))
 ship_image3 = pygame.transform.scale(ship_image3, (100, 100))
@@ -38,7 +39,7 @@ space.gravity = (0, 0)
 
 class Sprite:
     def __init__(self, x, y):
-        self.image = ship_image2
+        self.image = ship_image
         self.rect = self.image.get_rect(center=(x, y))
         self.body = pymunk.Body(1, pymunk.moment_for_box(1, (100, 100)))
         self.body.position = (x, y)
@@ -60,12 +61,12 @@ class Sprite:
     def draw(self, surface, camera_x, camera_y):
         self.rect.topleft = (self.body.position.x - camera_x, self.body.position.y - camera_y)
         surface.blit(self.image, self.rect)
-        if direction < 22.5 and direction > 157.5:
-           self.image = ship_image1
-        if direction < 67.5 and direction > 22.5:
+        if direction < 22.5 or direction > 157.5:
            self.image = ship_image2
-        if direction < 112.5 and direction > 67.5:
+        if direction < 67.5 and direction > 22.5:
            self.image = ship_image3
+        if direction < 112.5 and direction > 67.5:
+           self.image = ship_image1
         if direction < 157.5 and direction > 112.5:
            self.image = ship_image4
 class Box:
@@ -104,7 +105,6 @@ while True:
         direction += 180
     sprite.body.angle = math.radians(direction)
     sprite.move(speed, direction)
-    print(direction)
     space.step(dt)
     camera_x = sprite.body.position.x - width // 2 + sprite.rect.width // 2
     camera_y = sprite.body.position.y - height // 2 + sprite.rect.width // 2
