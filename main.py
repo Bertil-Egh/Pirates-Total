@@ -38,7 +38,7 @@ space.gravity = (0, 0)
 
 class Sprite:
     def __init__(self, x, y):
-        self.image = ship_image1
+        self.image = ship_image2
         self.rect = self.image.get_rect(center=(x, y))
         self.body = pymunk.Body(1, pymunk.moment_for_box(1, (100, 100)))
         self.body.position = (x, y)
@@ -60,8 +60,14 @@ class Sprite:
     def draw(self, surface, camera_x, camera_y):
         self.rect.topleft = (self.body.position.x - camera_x, self.body.position.y - camera_y)
         surface.blit(self.image, self.rect)
-        
-
+        if direction < 22.5 and direction > 157.5:
+           self.image = ship_image1
+        if direction < 67.5 and direction > 22.5:
+           self.image = ship_image2
+        if direction < 112.5 and direction > 67.5:
+           self.image = ship_image3
+        if direction < 157.5 and direction > 112.5:
+           self.image = ship_image4
 class Box:
     def __init__(self, x, y):
         self.image = pygame.Surface((35, 35))
