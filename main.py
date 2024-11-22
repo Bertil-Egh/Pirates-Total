@@ -39,6 +39,7 @@ space.gravity = (0, 0)
 
 class Sprite:
     def __init__(self, x, y):
+        self.current_speed = 0
         self.image = ship_image
         self.rect = self.image.get_rect(center=(x, y))
         self.body = pymunk.Body(1, pymunk.moment_for_box(1, (100, 100)))
@@ -58,6 +59,7 @@ class Sprite:
         if speed > self.max_speed:
             normalized_velocity = (current_velocity[0] / speed, current_velocity[1] / speed)
             self.body.velocity = (normalized_velocity[0] * self.max_speed, normalized_velocity[1] * self.max_speed)
+        self.current_speed = speed
     def draw(self, surface, camera_x, camera_y):
         self.rect.topleft = (self.body.position.x - camera_x, self.body.position.y - camera_y)
         surface.blit(self.image, self.rect)
@@ -88,6 +90,11 @@ cube = Box(300, 200)
 sprite = Sprite(375, 275)
 camera_x, camera_y = 0, 0
 
+def draw_speedometer(surface, speed):
+    font = pygame.font.Font(None, 36)  # Use default font and size 36
+    speed_text = font.render(f'Speed: {int(speed)}', True, BLACK)  # Render the speed text
+    surface.blit(speed_text, (10, 10))  # Draw the text at position (10, 10)
+    
 while True:
     dt = clock.tick(60) / 1000.0
     for event in pygame.event.get():
@@ -111,4 +118,5 @@ while True:
     screen.fill(WATERBLUE)
     sprite.draw(screen, camera_x, camera_y)
     cube.draw(screen, camera_x, camera_y)
+    draw_speedometer
     pygame.display.flip()
