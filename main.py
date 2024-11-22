@@ -5,6 +5,14 @@ import pymunk
 import pymunk.pygame_util
 
 pygame.init()
+<<<<<<< Updated upstream
+=======
+pygame.mixer.init()  
+pygame.mixer.music.load("Music.mp3")  
+pygame.mixer.music.play(-1)  
+
+pygame.init()
+>>>>>>> Stashed changes
 
 width, height = 800, 600
 screen = pygame.display.set_mode((width, height))
