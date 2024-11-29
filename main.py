@@ -48,9 +48,9 @@ class Sprite:
     def __init__(self, x, y):
         self.image = ship_image
         self.rect = self.image.get_rect(center=(x, y))
-        self.body = pymunk.Body(1, pymunk.moment_for_box(1, (50, 50)))
+        self.body = pymunk.Body(1, pymunk.moment_for_box(1, self.image.get_size()))  # Use image size for moment
         self.body.position = (x, y)
-        self.shape = pymunk.Poly.create_box(self.body)
+        self.shape = pymunk.Poly.create_box(self.body, self.image.get_size())  # Use image size for hitbox
         self.shape.elasticity = 0.99
         space.add(self.body, self.shape)
         self.max_speed = 50
@@ -73,7 +73,7 @@ class Sprite:
             )
 
     def draw(self, surface, camera_x, camera_y):
-        self.rect.topleft = (
+        self.rect.center = (
             self.body.position.x - camera_x,
             self.body.position.y - camera_y,
         )
@@ -120,22 +120,34 @@ class Island:
 
 
 class Box:
-    def __init__(self, x, y):
+    def __init__(self, x, y, space):
         self.image = pygame.Surface((35, 35))
         self.image.fill(RED)
         self.rect = self.image.get_rect(topleft=(x, y))
+        
+        # Create a static body in Pymunk
         self.body = pymunk.Body(body_type=pymunk.Body.STATIC)
         self.shape = pymunk.Poly.create_box(self.body, (35, 35))
         self.body.position = (x, y)
+        
+        # Add the body and shape to the space
         space.add(self.body, self.shape)
 
+    def update(self):
+        # Update the rect position based on the body's position
+        self.rect.topleft = (self.body.position.x - self.rect.width / 2, 
+        self.body.position.y - self.rect.height / 2)
+
     def draw(self, surface, camera_x, camera_y):
-        self.rect.topleft = (
-            self.body.position.x - camera_x,
-            self.body.position.y - camera_y,
-        )
-        surface.blit(self.image, self.rect)
-        pygame.draw.rect(surface, RED, self.rect, 2)
+        # Call update to ensure rect is in sync with body position
+        self.update()
+        
+        # Adjust rect position for camera
+        adjusted_rect = self.rect.move(-camera_x, -camera_y)
+        
+        # Draw the image and the outline
+        surface.blit(self.image, adjusted_rect)
+        pygame.draw.rect(surface, RED, adjusted_rect, 2)
 
 def generate_random_polygon(num_vertices, radius):
     """Generate a random polygon with a specified number of vertices and radius."""
@@ -151,32 +163,9 @@ def generate_random_polygon(num_vertices, radius):
     
     return vertices
 
+island_vertices = vertices = generate_random_polygon(10, 50)
 
-def generate_islands(num_islands):
-    islands = []
-    for _ in range(num_islands):
-        # Randomly generate the number of vertices for the island
-        num_vertices = random.randint(3, 8)  # Random number of vertices between 3 and 8
-        radius = random.randint(50, 150)  # Random radius for the shape
-        
-        # Generate random polygon vertices
-        vertices = generate_random_polygon(num_vertices, radius)
-        
-        # Randomly position the island within the map area
-        x = random.randint(0 + radius, MAP_WIDTH - radius)
-        y = random.randint(0 + radius, MAP_HEIGHT - radius)
-        
-        # Create the island and add it to the list
-        islands.append(Island(vertices, x, y))
-    
-    return islands
-
-
-islands = generate_islands(num_islands)
-
-island_vertices = [(10, 0), (100, 5), (100, 50), (4, 50)]
-
-cube = Box(300, 200)
+cube = Box(300, 200, space)
 sprite = Sprite(375, 275)
 island1 = Island(island_vertices, 200, 300)
 island2 = Island(island_vertices, 500, 400)
@@ -207,6 +196,4 @@ while True:
     island1.draw(screen, camera_x, camera_y)
     island2.draw(screen, camera_x, camera_y)
     cube.draw(screen, camera_x, camera_y)
-    for island in islands:
-        island.draw(screen, camera_x, camera_y)
     pygame.display.flip()
