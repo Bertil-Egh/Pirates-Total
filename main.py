@@ -8,7 +8,7 @@ import pymunk.pygame_util
 pygame.init()
 
 pygame.mixer.init()  
-pygame.mixer.music.load("Music.mp3")  
+pygame.mixer.music.load("WaterSplash.mp3")  
 pygame.mixer.music.play(-1)  
 
 width, height = 800, 600
