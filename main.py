@@ -7,7 +7,10 @@ import pymunk.pygame_util
 
 pygame.init()
 
-# Initialize screen and images
+pygame.mixer.init()  
+pygame.mixer.music.load("Music.mp3")  
+pygame.mixer.music.play(-1)  
+
 width, height = 800, 600
 MAP_WIDTH = 1600  # Width of the map
 MAP_HEIGHT = 1200  # Height of the map
