@@ -87,38 +87,6 @@ class Sprite:
         if direction < 157.5 and direction > 112.5:
             self.image = ship_image4
 
-class Island:
-    def __init__(self, vertices, x, y):
-        # Create a surface for the island
-        self.image = pygame.Surface((200, 200), pygame.SRCALPHA)  # Use SRCALPHA for transparency
-        self.image.fill((0, 0, 0, 0))  # Fill with transparent color
-        
-        # Draw the polygon on the surface
-        pygame.draw.polygon(self.image, GREEN, vertices)
-        
-        # Get the rect for positioning
-        self.rect = self.image.get_rect(topleft=(x, y))
-        
-        # Create a static body for the island
-        self.body = pymunk.Body(body_type=pymunk.Body.STATIC)
-        self.body.position = (x + 100, y + 100)  # Center the body at the polygon's center
-        
-        # Create the polygon shape
-        self.shape = pymunk.Poly(self.body, vertices)
-        self.shape.elasticity = 0.5  # Adjust elasticity as needed
-        space.add(self.body, self.shape)
-
-    def draw(self, surface, camera_x, camera_y):
-        # Update the rectangle position based on the body's position
-        self.rect.topleft = (
-            self.body.position.x - camera_x - 100,  # Adjust for the center offset
-            self.body.position.y - camera_y - 100,  # Adjust for the center offset
-        )
-        surface.blit(self.image, self.rect)
-        # Draw the polygon outline for visibility
-        pygame.draw.polygon(surface, RED, [(v[0] + self.rect.x, v[1] + self.rect.y) for v in self.shape.get_vertices()], 2)
-
-
 class Box:
     def __init__(self, x, y, space):
         self.image = pygame.Surface((35, 35))
@@ -149,26 +117,8 @@ class Box:
         surface.blit(self.image, adjusted_rect)
         pygame.draw.rect(surface, RED, adjusted_rect, 2)
 
-def generate_random_polygon(num_vertices, radius):
-    """Generate a random polygon with a specified number of vertices and radius."""
-    angle_step = 360 / num_vertices
-    vertices = []
-    
-    for i in range(num_vertices):
-        angle = math.radians(i * angle_step + random.uniform(-angle_step / 2, angle_step / 2))
-        r = random.uniform(radius * 0.5, radius)  # Randomize the distance from the center
-        x = r * math.cos(angle)
-        y = r * math.sin(angle)
-        vertices.append((x, y))
-    
-    return vertices
-
-island_vertices = vertices = generate_random_polygon(10, 50)
-
 cube = Box(300, 200, space)
 sprite = Sprite(375, 275)
-island1 = Island(island_vertices, 200, 300)
-island2 = Island(island_vertices, 500, 400)
 camera_x, camera_y = 0, 0
 
 while True:
@@ -193,7 +143,5 @@ while True:
     camera_y = sprite.body.position.y - height // 2 + sprite.rect.width // 2
     screen.fill(WATERBLUE)
     sprite.draw(screen, camera_x, camera_y)
-    island1.draw(screen, camera_x, camera_y)
-    island2.draw(screen, camera_x, camera_y)
     cube.draw(screen, camera_x, camera_y)
     pygame.display.flip()
