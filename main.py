@@ -8,21 +8,21 @@ import pymunk.pygame_util
 pygame.init()
 
 pygame.mixer.init()  
-pygame.mixer.music.load("Music.mp3")  
-pygame.mixer.music.play(-1)  
+pygame.mixer.music.load("assets/media/sounds/Music.mp3")
+pygame.mixer.music.play(-1)
 
 width, height = 800, 600
 MAP_WIDTH = 1600  # Width of the map
 MAP_HEIGHT = 1200  # Height of the map
 screen = pygame.display.set_mode((width, height))
 
-ship_image = pygame.image.load('PiratesTotalShipSide2.png')
-ship_image1 = pygame.image.load('PiratesTotalShipSide1.png')
-ship_image2 = pygame.image.load('PiratesTotalShipSide2.png')
-ship_image3 = pygame.image.load('PiratesTotalShipFront.png')
-ship_image4 = pygame.image.load('PiratesTotalShipBack.png')
-compass_circle = pygame.image.load('COMPASS.png')
-compass_pointer = pygame.image.load('COMPASSPOINTER.png')
+ship_image = pygame.image.load('assets/media/image/PiratesTotalShipSide2.png')
+ship_image1 = pygame.image.load('assets/media/image/PiratesTotalShipSide1.png')
+ship_image2 = pygame.image.load('assets/media/image/PiratesTotalShipSide2.png')
+ship_image3 = pygame.image.load('assets/media/image/PiratesTotalShipFront.png')
+ship_image4 = pygame.image.load('assets/media/image/PiratesTotalShipBack.png')
+compass_circle = pygame.image.load('assets/media/image/COMPASS.png')
+compass_pointer = pygame.image.load('assets/media/image/COMPASSPOINTER.png')
 
 # Resize images
 ship_image = pygame.transform.scale(ship_image, (100, 100))  
