@@ -6,6 +6,7 @@ import pymunk.pygame_util
 
 pygame.init()
 
+# Initialize screen and images
 width, height = 800, 600
 screen = pygame.display.set_mode((width, height))
 ship_image = pygame.image.load('PiratesTotalShipSide2.png')
@@ -13,18 +14,22 @@ ship_image1 = pygame.image.load('PiratesTotalShipSide1.png')
 ship_image2 = pygame.image.load('PiratesTotalShipSide2.png')
 ship_image3 = pygame.image.load('PiratesTotalShipFront.png')
 ship_image4 = pygame.image.load('PiratesTotalShipBack.png')
+compass_circle = pygame.image.load('COMPASS.png')
+compass_pointer = pygame.image.load('COMPASSPOINTER.png')
 
 # Resize images
-ship_image = pygame.transform.scale(ship_image, (100, 100))  # Change to 80x80
+ship_image = pygame.transform.scale(ship_image, (100, 100))  
 ship_image1 = pygame.transform.scale(ship_image1, (100, 100))
 ship_image2 = pygame.transform.scale(ship_image2, (100, 100))
 ship_image3 = pygame.transform.scale(ship_image3, (100, 100))
 ship_image4 = pygame.transform.scale(ship_image4, (100, 100))
+compass_circle = pygame.transform.scale(compass_circle, (150, 150))  # Resize compass circle
+compass_pointer = pygame.transform.scale(compass_pointer, (120, 120))  # Resize compass pointer
 
 pygame.display.set_caption("Gorms Program")
 clock = pygame.time.Clock()
-ship_direction = 1
 
+# Constants for colors
 WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
 RED = (255, 0, 0)
@@ -32,21 +37,21 @@ GREEN = (0, 255, 0)
 BLACK = (0, 0)
 WATERBLUE = (0, 195, 245)
 
+# Movement variables
 speed = 4
-direction = 0
+direction = 0  # Direction of the ship, will be used to rotate the compass pointer
 
+# Initialize Pymunk space
 space = pymunk.Space()
 space.gravity = (0, 0)
 
+# Define Sprite class for the ship
 class Sprite:
     def __init__(self, x, y):
         self.current_speed = 0
         self.image = ship_image
-        # Set the sprite rect size to 80x80
         self.rect = pygame.Rect(0, 0, 80, 80)
         self.rect.center = (x, y)
-        
-        # Create the Pymunk body and shape
         self.body = pymunk.Body(1, pymunk.moment_for_box(1, (80, 80)))
         self.body.position = (x, y)
         self.shape = pymunk.Poly.create_box(self.body, (80, 80))
@@ -67,18 +72,16 @@ class Sprite:
         self.current_speed = speed
 
     def draw(self, surface, camera_x, camera_y):
-        # Align the sprite rect with the Pymunk body position (centered)
         self.rect.center = (self.body.position.x - camera_x, self.body.position.y - camera_y)
         surface.blit(self.image, self.rect)
         
-        # Set image based on the direction
         if direction < 22.5 or direction > 157.5:
             self.image = ship_image2
-        if direction < 67.5 and direction > 22.5:
+        elif direction < 67.5 and direction > 22.5:
             self.image = ship_image3
-        if direction < 112.5 and direction > 67.5:
+        elif direction < 112.5 and direction > 67.5:
             self.image = ship_image1
-        if direction < 157.5 and direction > 112.5:
+        elif direction < 157.5 and direction > 112.5:
             self.image = ship_image4
 
 class Box:
@@ -95,17 +98,13 @@ class Box:
         self.rect.topleft = (self.body.position.x - camera_x, self.body.position.y - camera_y)
         surface.blit(self.image, self.rect)
         pygame.draw.rect(surface, RED, self.rect, 2)
-        
-cube = Box(300, 200)  # Static box at position (300, 200)
-sprite = Sprite(375, 275)  # Moving sprite
+
+# Create objects
+cube = Box(300, 200)
+sprite = Sprite(375, 275)
 camera_x, camera_y = 0, 0
 
-def draw_speedometer(surface, speed):
-    font = pygame.font.Font(None, 36)  # Use default font and size 36
-    speed_text = font.render(f'Speed: {int(speed)}', True, BLACK)  # Render the speed text
-    surface.blit(speed_text, (10, 10))  # Draw the text at position (10, 10)
-
-# Initialize the DrawOptions for collision shapes
+# Initialize pymunk drawing options
 draw_options = pymunk.pygame_util.DrawOptions(screen)
 
 while True:
@@ -114,6 +113,8 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+
+    # Handle key inputs for ship movement and direction
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT] or keys[pygame.K_a]:
         direction -= 2
@@ -123,12 +124,31 @@ while True:
         direction -= 180
     while direction < 0:
         direction += 180
+
+    # Apply the direction to the sprite's body
     sprite.body.angle = math.radians(direction)
     sprite.move(speed, direction)
-    space.step(dt)
+
+    # Update camera position
     camera_x = sprite.body.position.x - width // 2 + sprite.rect.width // 2
     camera_y = sprite.body.position.y - height // 2 + sprite.rect.width // 2
+
+    # Clear the screen
     screen.fill(WATERBLUE)
+
+    # Draw the ship and box objects
     sprite.draw(screen, camera_x, camera_y)
     cube.draw(screen, camera_x, camera_y)  
+
+    # Draw compass
+    compass_pos = (width - 150, height - 150)  # Position of the compass circle
+    screen.blit(compass_circle, compass_pos)  # Draw the compass circle
+
+    # Rotate and draw the compass pointer
+    rotated_pointer = pygame.transform.rotate(compass_pointer, -(direction + direction))  # Rotate pointer based on direction
+    pointer_rect = rotated_pointer.get_rect(center=(compass_pos[0] + 75, compass_pos[1] + 75))  # Position pointer at the center of the compass circle
+    screen.blit(rotated_pointer, pointer_rect.topleft)
+
+    # Update the display
     pygame.display.flip()
+    space.step(dt)
