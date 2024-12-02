@@ -3,6 +3,7 @@ import sys
 import math
 import pymunk
 import pymunk.pygame_util
+import time
 
 pygame.init()
 
@@ -31,12 +32,8 @@ ship_image1 = pygame.transform.scale(ship_image1, (100, 100))
 ship_image2 = pygame.transform.scale(ship_image2, (100, 100))
 ship_image3 = pygame.transform.scale(ship_image3, (100, 100))
 ship_image4 = pygame.transform.scale(ship_image4, (100, 100))
-compass_circle = pygame.transform.scale(
-    compass_circle, (150, 150)
-)  # Resize compass circle
-compass_pointer = pygame.transform.scale(
-    compass_pointer, (120, 120)
-)  # Resize compass pointer
+compass_circle = pygame.transform.scale(compass_circle, (150, 150))  # Resize compass circle
+compass_pointer = pygame.transform.scale(compass_pointer, (120, 120))  # Resize compass pointer
 
 pygame.display.set_caption("Gorms Program")
 clock = pygame.time.Clock()
@@ -66,17 +63,14 @@ class Sprite:
         self.image = ship_image
 
         self.rect = self.image.get_rect(center=(x, y))
-        self.body = pymunk.Body(
-            1, pymunk.moment_for_box(1, self.image.get_size())
-        )  # Use image size for moment
+        self.body = pymunk.Body(1, pymunk.moment_for_box(1, self.image.get_size()))  # Use image size for moment
         self.body.position = (x, y)
-        self.shape = pymunk.Poly.create_box(
-            self.body, self.image.get_size()
-        )  # Use image size for hitbox
+        self.shape = pymunk.Poly.create_box(self.body, self.image.get_size())  # Use image size for hitbox
         self.shape.elasticity = 0.99
         space.add(self.body, self.shape)
         self.max_speed = 50
-
+        self.cannonball_directionR = 0
+        self.cannonball_directionL = 180
     def move(self, distance, direction):
         radians = math.radians(direction)
         force_x = distance * math.cos(radians) * 50
@@ -85,7 +79,6 @@ class Sprite:
         current_velocity = self.body.velocity
         speed = math.sqrt(current_velocity[0] ** 2 + current_velocity[1] ** 2)
         if speed > self.max_speed:
-
             normalized_velocity = (
                 current_velocity[0] / speed,
                 current_velocity[1] / speed,
@@ -104,14 +97,20 @@ class Sprite:
 
         if direction < 22.5 or direction > 157.5:
             self.image = ship_image2
+            self.cannonball_directionR = 90
+            self.cannonball_directionL = 270
         elif direction < 67.5 and direction > 22.5:
             self.image = ship_image3
+            self.cannonball_directionR = 180
+            self.cannonball_directionL = 0
         elif direction < 112.5 and direction > 67.5:
             self.image = ship_image1
+            self.cannonball_directionR = 270
+            self.cannonball_directionL = 90
         elif direction < 157.5 and direction > 112.5:
-
             self.image = ship_image4
-
+            self.cannonball_directionR = 0
+            self.cannonball_directionL = 180
 
 class Box:
     def __init__(self, x, y, space):
@@ -146,12 +145,44 @@ class Box:
         pygame.draw.rect(surface, RED, adjusted_rect, 2)
 
 
+class Cannonball:
+    def __init__(self, x, y, direction, speed=10):
+        self.x = x
+        self.y = y
+        self.direction = direction
+        self.speed = speed
+        self.image = pygame.Surface((10, 10))
+        self.image.fill(RED)
+        self.rect = self.image.get_rect(center=(x, y))
+
+    def update(self):
+        radians = math.radians(self.direction)
+        self.x += self.speed * math.cos(radians)
+        self.y += self.speed * math.sin(radians)
+        self.rect.center = (self.x, self.y)
+
+    def draw(self, surface):
+        surface.blit(self.image, self.rect)
+
+
+# Initialize objects
 cube = Box(300, 200, space)
 sprite = Sprite(375, 275)
 camera_x, camera_y = 0, 0
 
+# Health bar variables
+health = 100
+max_health = 100
+
+# Timer variables for cannon cooldown
+last_shot_time = time.time()
+cooldown = 0.5  # seconds
+
 # Initialize pymunk drawing options
 draw_options = pymunk.pygame_util.DrawOptions(screen)
+
+# List to hold cannonballs
+cannonballs = []
 
 while True:
     dt = clock.tick(60) / 1000.0
@@ -179,6 +210,21 @@ while True:
     camera_x = sprite.body.position.x - width // 2 + sprite.rect.width // 2
     camera_y = sprite.body.position.y - height // 2 + sprite.rect.width // 2
 
+    # Get mouse position for cannon direction
+    mouse_x, mouse_y = pygame.mouse.get_pos()
+
+    # Handle shooting
+    if time.time() - last_shot_time > cooldown:
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_q]:  # Left mouse button
+            cannonball = Cannonball(sprite.rect.centerx, sprite.rect.centery, sprite.cannonball_directionL)
+            cannonballs.append(cannonball)
+            last_shot_time = time.time()
+        if keys[pygame.K_e]:  # Left mouse button
+            cannonball = Cannonball(sprite.rect.centerx, sprite.rect.centery, sprite.cannonball_directionR)
+            cannonballs.append(cannonball)
+            last_shot_time = time.time()
+            
     # Clear the screen
     screen.fill(WATERBLUE)
 
@@ -191,13 +237,21 @@ while True:
     screen.blit(compass_circle, compass_pos)  # Draw the compass circle
 
     # Rotate and draw the compass pointer
-    rotated_pointer = pygame.transform.rotate(
-        compass_pointer, -(direction + direction)
-    )  # Rotate pointer based on direction
-    pointer_rect = rotated_pointer.get_rect(
-        center=(compass_pos[0] + 75, compass_pos[1] + 75)
-    )  # Position pointer at the center of the compass circle
+    rotated_pointer = pygame.transform.rotate(compass_pointer, -(direction + direction))  # Rotate pointer based on direction
+    pointer_rect = rotated_pointer.get_rect(center=(compass_pos[0] + 75, compass_pos[1] + 75))  # Position pointer at the center of the compass circle
     screen.blit(rotated_pointer, pointer_rect.topleft)
+
+    # Draw the health bar
+    health_bar_width = 200
+    health_bar_height = 20
+    pygame.draw.rect(screen, BLUE, (10, 10, health_bar_width + 2, health_bar_height + 2))  # Background
+    pygame.draw.rect(screen, RED, (10, 10, health_bar_width, health_bar_height))  # Red part
+    pygame.draw.rect(screen, GREEN, (10, 10, (health / max_health) * health_bar_width, health_bar_height))  # Green part
+
+    # Update cannonballs
+    for cannonball in cannonballs:
+        cannonball.update()
+        cannonball.draw(screen)
 
     # Update the display
     pygame.display.flip()
