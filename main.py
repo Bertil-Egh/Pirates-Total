@@ -6,9 +6,11 @@ import pymunk.pygame_util
 
 pygame.init()
 
-pygame.mixer.init()
-pygame.mixer.music.load("assets/media/sounds/Music.mp3")
-pygame.mixer.music.play(-1)
+main
+pygame.mixer.init()  
+pygame.mixer.music.load("WaterSplash.mp3")  
+pygame.mixer.music.play(-1)  
+
 
 width, height = 800, 600
 MAP_WIDTH = 1600  # Width of the map
