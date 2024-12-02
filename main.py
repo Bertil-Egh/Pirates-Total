@@ -67,6 +67,7 @@ class Sprite:
         self.shape.elasticity = 0.99
         space.add(self.body, self.shape)
         self.max_speed = 50
+        self.cannonball_direction = 0
 
     def move(self, distance, direction):
         radians = math.radians(direction)
@@ -94,13 +95,16 @@ class Sprite:
 
         if direction < 22.5 or direction > 157.5:
             self.image = ship_image2
+            self.cannonball_direction = 90
         elif direction < 67.5 and direction > 22.5:
             self.image = ship_image3
+            self.cannonball_direction = 180
         elif direction < 112.5 and direction > 67.5:
             self.image = ship_image1
+            self.cannonball_direction = 270
         elif direction < 157.5 and direction > 112.5:
             self.image = ship_image4
-
+            self.cannonball_direction = 0
 
 class Box:
     def __init__(self, x, y, space):
@@ -202,12 +206,11 @@ while True:
 
     # Get mouse position for cannon direction
     mouse_x, mouse_y = pygame.mouse.get_pos()
-    angle_to_cursor = math.degrees(math.atan2(mouse_y - sprite.rect.centery, mouse_x - sprite.rect.centerx))
 
     # Handle shooting
     if time.time() - last_shot_time > cooldown:
         if pygame.mouse.get_pressed()[0]:  # Left mouse button
-            cannonball = Cannonball(sprite.rect.centerx, sprite.rect.centery, angle_to_cursor)
+            cannonball = Cannonball(sprite.rect.centerx, sprite.rect.centery, sprite.cannonball_direction)
             cannonballs.append(cannonball)
             last_shot_time = time.time()
 
