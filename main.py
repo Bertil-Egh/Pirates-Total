@@ -67,8 +67,8 @@ class Sprite:
         self.shape.elasticity = 0.99
         space.add(self.body, self.shape)
         self.max_speed = 50
-        self.cannonball_direction = 0
-
+        self.cannonball_directionR = 0
+        self.cannonball_directionL = 180
     def move(self, distance, direction):
         radians = math.radians(direction)
         force_x = distance * math.cos(radians) * 50
@@ -95,16 +95,20 @@ class Sprite:
 
         if direction < 22.5 or direction > 157.5:
             self.image = ship_image2
-            self.cannonball_direction = 90
+            self.cannonball_directionR = 90
+            self.cannonball_directionL = 270
         elif direction < 67.5 and direction > 22.5:
             self.image = ship_image3
-            self.cannonball_direction = 180
+            self.cannonball_directionR = 180
+            self.cannonball_directionL = 0
         elif direction < 112.5 and direction > 67.5:
             self.image = ship_image1
-            self.cannonball_direction = 270
+            self.cannonball_directionR = 270
+            self.cannonball_directionL = 90
         elif direction < 157.5 and direction > 112.5:
             self.image = ship_image4
-            self.cannonball_direction = 0
+            self.cannonball_directionR = 0
+            self.cannonball_directionL = 180
 
 class Box:
     def __init__(self, x, y, space):
@@ -209,11 +213,16 @@ while True:
 
     # Handle shooting
     if time.time() - last_shot_time > cooldown:
-        if pygame.mouse.get_pressed()[0]:  # Left mouse button
-            cannonball = Cannonball(sprite.rect.centerx, sprite.rect.centery, sprite.cannonball_direction)
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_q]:  # Left mouse button
+            cannonball = Cannonball(sprite.rect.centerx, sprite.rect.centery, sprite.cannonball_directionL)
             cannonballs.append(cannonball)
             last_shot_time = time.time()
-
+        if keys[pygame.K_e]:  # Left mouse button
+            cannonball = Cannonball(sprite.rect.centerx, sprite.rect.centery, sprite.cannonball_directionR)
+            cannonballs.append(cannonball)
+            last_shot_time = time.time()
+            
     # Clear the screen
     screen.fill(WATERBLUE)
 
