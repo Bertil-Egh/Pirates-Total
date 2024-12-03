@@ -14,6 +14,7 @@ pygame.mixer.music.play(-1)
 width, height = 800, 600
 MAP_WIDTH = 1600  # Width of the map
 MAP_HEIGHT = 1200  # Height of the map
+WATER_TILE_SIZE = 51
 screen = pygame.display.set_mode((width, height))
 
 tick = 0
@@ -137,10 +138,25 @@ class Water:
             self.current_frame = 0
         self.image = self.frames[int(self.current_frame)]
 
-    def draw(self, surface, camera_x, camera_y):
-        # Adjust rect position for camera
-        adjusted_rect = self.rect.move(-camera_x, -camera_y)
-        surface.blit(self.image, adjusted_rect)
+    def draw(self, surface, camera_x, camera_y, screen_width, screen_height):
+        # Calculate the starting tile positions based on camera position
+        start_x = int(camera_x // WATER_TILE_SIZE) * WATER_TILE_SIZE
+        start_y = int(camera_y // WATER_TILE_SIZE) * WATER_TILE_SIZE
+
+        # Calculate how many tiles fit on the screen
+        num_tiles_x = (screen_width // WATER_TILE_SIZE) + 2  # Extra tiles for scrolling
+        num_tiles_y = (screen_height // WATER_TILE_SIZE) + 2  # Extra tiles for scrolling
+
+        # Draw the water tiles
+        for i in range(num_tiles_x):
+            for j in range(num_tiles_y):
+                # Calculate the position of each tile
+                tile_x = start_x + i * WATER_TILE_SIZE
+                tile_y = start_y + j * WATER_TILE_SIZE
+
+                # Adjust rect position for camera
+                adjusted_rect = self.image.get_rect(topleft=(tile_x - camera_x, tile_y - camera_y))
+                surface.blit(self.image, adjusted_rect)
 
 class Box:
     def __init__(self, x, y, space):
@@ -267,9 +283,9 @@ while True:
     draw_gradient(screen, tick)
 
     # Draw the ship and box objects
+    water.draw(screen, camera_x, camera_y, width, height)
     sprite.draw(screen, camera_x, camera_y)
     cube.draw(screen, camera_x, camera_y)
-    water.draw(screen, camera_x, camera_y)
 
     # Draw compass
     compass_pos = (width - 150, height - 150)
