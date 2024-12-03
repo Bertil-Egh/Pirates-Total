@@ -4,19 +4,19 @@ import math
 import pymunk
 import pymunk.pygame_util
 import time
+import json
 
 pygame.init()
-
-main
 pygame.mixer.init()  
 pygame.mixer.music.load("WaterSplash.mp3")  
 pygame.mixer.music.play(-1)  
-
 
 width, height = 800, 600
 MAP_WIDTH = 1600  # Width of the map
 MAP_HEIGHT = 1200  # Height of the map
 screen = pygame.display.set_mode((width, height))
+
+tick = 0
 
 ship_image = pygame.image.load("assets/media/image/PiratesTotalShipSide2.png")
 ship_image1 = pygame.image.load("assets/media/image/PiratesTotalShipSide1.png")
@@ -25,6 +25,17 @@ ship_image3 = pygame.image.load("assets/media/image/PiratesTotalShipFront.png")
 ship_image4 = pygame.image.load("assets/media/image/PiratesTotalShipBack.png")
 compass_circle = pygame.image.load("assets/media/image/COMPASS.png")
 compass_pointer = pygame.image.load("assets/media/image/COMPASSPOINTER.png")
+
+with open("assets/media/json/water_1.json") as f:
+    spritesheet_data = json.load(f)
+
+water_image = pygame.image.load("assets/media/image/water_1.png").convert_alpha()
+
+water_frames = []
+for frame_data in spritesheet_data["frames"].values():
+    frame = frame_data["frame"]
+    rect = pygame.Rect(frame["x"], frame["y"], frame["w"], frame["h"])
+    water_frames.append(water_image.subsurface(rect))
 
 # Resize images
 ship_image = pygame.transform.scale(ship_image, (100, 100))
@@ -112,6 +123,25 @@ class Sprite:
             self.cannonball_directionR = 0
             self.cannonball_directionL = 180
 
+class Water:
+    def __init__(self, x, y):
+        self.frames = water_frames
+        self.current_frame = 0
+        self.image = self.frames[self.current_frame]
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.animation_speed = 0.1  # Adjust for speed of animation
+
+    def update(self):
+        self.current_frame += self.animation_speed
+        if self.current_frame >= len(self.frames):
+            self.current_frame = 0
+        self.image = self.frames[int(self.current_frame)]
+
+    def draw(self, surface, camera_x, camera_y):
+        # Adjust rect position for camera
+        adjusted_rect = self.rect.move(-camera_x, -camera_y)
+        surface.blit(self.image, adjusted_rect)
+
 class Box:
     def __init__(self, x, y, space):
         self.image = pygame.Surface((35, 35))
@@ -164,10 +194,20 @@ class Cannonball:
     def draw(self, surface):
         surface.blit(self.image, self.rect)
 
+def draw_gradient(screen, time):
+    # Calculate color values based on time
+    r = 0
+    g = 195
+    b = max(230, int((128 + 127 * math.sin(time * 0.006)) % 256))
+    for y in range(height):
+        color = (r, g, b)
+        pygame.draw.line(screen, color, (0, y), (width, y))
+
 
 # Initialize objects
 cube = Box(300, 200, space)
 sprite = Sprite(375, 275)
+water = Water(100, 100)
 camera_x, camera_y = 0, 0
 
 # Health bar variables
@@ -181,7 +221,6 @@ cooldown = 0.5  # seconds
 # Initialize pymunk drawing options
 draw_options = pymunk.pygame_util.DrawOptions(screen)
 
-# List to hold cannonballs
 cannonballs = []
 
 while True:
@@ -191,12 +230,12 @@ while True:
             pygame.quit()
             sys.exit()
 
-    # Handle key inputs for ship movement and direction
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT] or keys[pygame.K_a]:
         direction -= 2
     if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
         direction += 2
+
     while direction > 179:
         direction -= 180
     while direction < 0:
@@ -210,48 +249,48 @@ while True:
     camera_x = sprite.body.position.x - width // 2 + sprite.rect.width // 2
     camera_y = sprite.body.position.y - height // 2 + sprite.rect.width // 2
 
-    # Get mouse position for cannon direction
-    mouse_x, mouse_y = pygame.mouse.get_pos()
-
     # Handle shooting
     if time.time() - last_shot_time > cooldown:
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_q]:  # Left mouse button
+        if keys[pygame.K_q]:
             cannonball = Cannonball(sprite.rect.centerx, sprite.rect.centery, sprite.cannonball_directionL)
             cannonballs.append(cannonball)
             last_shot_time = time.time()
-        if keys[pygame.K_e]:  # Left mouse button
+        if keys[pygame.K_e]:
             cannonball = Cannonball(sprite.rect.centerx, sprite.rect.centery, sprite.cannonball_directionR)
             cannonballs.append(cannonball)
             last_shot_time = time.time()
-            
+
+    water.update()
+
     # Clear the screen
-    screen.fill(WATERBLUE)
+    draw_gradient(screen, tick)
 
     # Draw the ship and box objects
     sprite.draw(screen, camera_x, camera_y)
     cube.draw(screen, camera_x, camera_y)
+    water.draw(screen, camera_x, camera_y)
 
     # Draw compass
-    compass_pos = (width - 150, height - 150)  # Position of the compass circle
-    screen.blit(compass_circle, compass_pos)  # Draw the compass circle
+    compass_pos = (width - 150, height - 150)
+    screen.blit(compass_circle, compass_pos)
 
-    # Rotate and draw the compass pointer
-    rotated_pointer = pygame.transform.rotate(compass_pointer, -(direction + direction))  # Rotate pointer based on direction
-    pointer_rect = rotated_pointer.get_rect(center=(compass_pos[0] + 75, compass_pos[1] + 75))  # Position pointer at the center of the compass circle
+    rotated_pointer = pygame.transform.rotate(compass_pointer, -(direction + direction))
+    pointer_rect = rotated_pointer.get_rect(center=(compass_pos[0] + 75, compass_pos[1] + 75))
     screen.blit(rotated_pointer, pointer_rect.topleft)
 
-    # Draw the health bar
     health_bar_width = 200
     health_bar_height = 20
-    pygame.draw.rect(screen, BLUE, (10, 10, health_bar_width + 2, health_bar_height + 2))  # Background
-    pygame.draw.rect(screen, RED, (10, 10, health_bar_width, health_bar_height))  # Red part
-    pygame.draw.rect(screen, GREEN, (10, 10, (health / max_health) * health_bar_width, health_bar_height))  # Green part
+    pygame.draw.rect(screen, BLUE, (10, 10, health_bar_width + 2, health_bar_height + 2))
+    pygame.draw.rect(screen, RED, (10, 10, health_bar_width, health_bar_height))
+    pygame.draw.rect(screen, GREEN, (10, 10, (health / max_health) * health_bar_width, health_bar_height))
 
     # Update cannonballs
     for cannonball in cannonballs:
         cannonball.update()
         cannonball.draw(screen)
+
+    tick += 1
 
     # Update the display
     pygame.display.flip()
