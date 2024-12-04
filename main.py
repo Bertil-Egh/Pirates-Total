@@ -163,12 +163,12 @@ class Cannonball:
         surface.blit(self.image, self.rect)
     
     def remove(self):
-        print("hi")
+        print("hai")
 
 def check_collision(space, cannonballs):
     for i in cannonballs:
         if i.rect.colliderect(octopus.rect):
-            octopus.take_damage(10)  # Example damage value
+            octopus.take_damage(1)  # Example damage value
             cannonballs
             cannonball.remove()  # Remove cannonball after hit
             break  # Exit loop after collision is detected
