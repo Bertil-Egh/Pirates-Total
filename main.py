@@ -6,15 +6,14 @@ import pymunk.pygame_util
 import time
 import json
 
+from constants import *
+
 pygame.init()
 pygame.mixer.init()  
 pygame.mixer.music.load("WaterSplash.mp3")  
 pygame.mixer.music.play(-1)  
 
 width, height = 800, 600
-MAP_WIDTH = 1600  # Width of the map
-MAP_HEIGHT = 1200  # Height of the map
-WATER_TILE_SIZE = 51
 screen = pygame.display.set_mode((width, height))
 
 tick = 0
@@ -51,14 +50,6 @@ compass_pointer = pygame.transform.scale(compass_pointer, (120, 120))  # Resize 
 octo_image = pygame.transform.scale(octo_image, (150, 150))
 pygame.display.set_caption("Gorms Program")
 clock = pygame.time.Clock()
-
-# Constants for colors
-WHITE = (255, 255, 255)
-BLUE = (0, 0, 255)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLACK = (0, 0)
-WATERBLUE = (0, 195, 245)
 
 # Movement variables
 speed = 4
