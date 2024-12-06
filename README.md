@@ -25,6 +25,9 @@ become the mightiest pirate.
     Background and Environment:
         [x] (WIP) Add a background image or tiles to create a more immersive environment. You could also add water effects or other environmental elements.
 
+    Class Organization:
+        Separating the classes into different files/modules. This will make the codebase more manageable and easier to navigate as it grows.
+
     Sound Effects and Music:
         [x] (WIP) Incorporate sound effects for actions like moving, colliding, or background music to enhance the gaming experience.
 
