@@ -273,6 +273,7 @@ class Octopuss:
 cube = Box(300, 200, space)
 sprite = Sprite(375, 275)
 octopus = Octopuss(375, 275, space)  # Position the octopus at (600, 300)
+water = Water(150, 100)
 camera_x, camera_y = 0, 0
 octopus.draw(screen, camera_x, camera_y)
 
