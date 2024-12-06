@@ -1,0 +1,117 @@
+{ "frames": {
+   "water_1 0.ase": {
+    "frame": { "x": 0, "y": 0, "w": 51, "h": 51 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 51, "h": 51 },
+    "sourceSize": { "w": 51, "h": 51 },
+    "duration": 100
+   },
+   "water_1 1.ase": {
+    "frame": { "x": 51, "y": 0, "w": 51, "h": 51 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 51, "h": 51 },
+    "sourceSize": { "w": 51, "h": 51 },
+    "duration": 100
+   },
+   "water_1 2.ase": {
+    "frame": { "x": 102, "y": 0, "w": 51, "h": 51 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 51, "h": 51 },
+    "sourceSize": { "w": 51, "h": 51 },
+    "duration": 100
+   },
+   "water_1 3.ase": {
+    "frame": { "x": 153, "y": 0, "w": 51, "h": 51 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 51, "h": 51 },
+    "sourceSize": { "w": 51, "h": 51 },
+    "duration": 100
+   },
+   "water_1 4.ase": {
+    "frame": { "x": 204, "y": 0, "w": 51, "h": 51 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 51, "h": 51 },
+    "sourceSize": { "w": 51, "h": 51 },
+    "duration": 100
+   },
+   "water_1 5.ase": {
+    "frame": { "x": 255, "y": 0, "w": 51, "h": 51 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 51, "h": 51 },
+    "sourceSize": { "w": 51, "h": 51 },
+    "duration": 100
+   },
+   "water_1 6.ase": {
+    "frame": { "x": 306, "y": 0, "w": 51, "h": 51 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 51, "h": 51 },
+    "sourceSize": { "w": 51, "h": 51 },
+    "duration": 100
+   },
+   "water_1 7.ase": {
+    "frame": { "x": 357, "y": 0, "w": 51, "h": 51 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 51, "h": 51 },
+    "sourceSize": { "w": 51, "h": 51 },
+    "duration": 100
+   },
+   "water_1 8.ase": {
+    "frame": { "x": 408, "y": 0, "w": 51, "h": 51 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 51, "h": 51 },
+    "sourceSize": { "w": 51, "h": 51 },
+    "duration": 100
+   },
+   "water_1 9.ase": {
+    "frame": { "x": 459, "y": 0, "w": 51, "h": 51 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 51, "h": 51 },
+    "sourceSize": { "w": 51, "h": 51 },
+    "duration": 100
+   },
+   "water_1 10.ase": {
+    "frame": { "x": 510, "y": 0, "w": 51, "h": 51 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 51, "h": 51 },
+    "sourceSize": { "w": 51, "h": 51 },
+    "duration": 100
+   },
+   "water_1 11.ase": {
+    "frame": { "x": 561, "y": 0, "w": 51, "h": 51 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 51, "h": 51 },
+    "sourceSize": { "w": 51, "h": 51 },
+    "duration": 100
+   }
+ },
+ "meta": {
+  "app": "https://github.com/LibreSprite/LibreSprite/",
+  "version": "1.1-dev",
+  "image": "Z:\\GIMPIS\\pixelart\\water_1.png",
+  "format": "RGBA8888",
+  "size": { "w": 612, "h": 51 },
+  "scale": "1",
+  "frameTags": [
+   { "name": "Loop", "from": 0, "to": 11, "direction": "pingpong" }
+  ],
+  "layers": [
+   { "name": "Background", "opacity": 255, "blendMode": "normal" },
+   { "name": "Layer 3", "opacity": 152, "blendMode": "normal" },
+   { "name": "Layer 4", "opacity": 41, "blendMode": "normal" },
+   { "name": "Layer 1", "opacity": 255, "blendMode": "normal" },
+   { "name": "Layer 2", "opacity": 255, "blendMode": "normal" }
+  ]
+ }
+}
