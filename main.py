@@ -27,6 +27,8 @@ ship_image4 = pygame.image.load("assets/media/image/PiratesTotalShipBack.png")
 compass_circle = pygame.image.load("assets/media/image/COMPASS.png")
 compass_pointer = pygame.image.load("assets/media/image/COMPASSPOINTER.png")
 
+octo_image = pygame.image.load("assets/media/image/OCTOPUSSSS.png")
+
 with open("assets/media/json/water_1.json") as f:
     spritesheet_data = json.load(f)
 
@@ -46,7 +48,7 @@ ship_image3 = pygame.transform.scale(ship_image3, (100, 100))
 ship_image4 = pygame.transform.scale(ship_image4, (100, 100))
 compass_circle = pygame.transform.scale(compass_circle, (150, 150))  # Resize compass circle
 compass_pointer = pygame.transform.scale(compass_pointer, (120, 120))  # Resize compass pointer
-
+octo_image = pygame.transform.scale(octo_image, (150, 150))
 pygame.display.set_caption("Gorms Program")
 clock = pygame.time.Clock()
 
@@ -206,9 +208,73 @@ class Cannonball:
         self.x += self.speed * math.cos(radians)
         self.y += self.speed * math.sin(radians)
         self.rect.center = (self.x, self.y)
-
+            
     def draw(self, surface):
         surface.blit(self.image, self.rect)
+    
+    def remove(self):
+        print("hai")
+
+def check_collision(space, cannonballs):
+    for i in cannonballs:
+        if i.rect.colliderect(octopus.rect):
+            octopus.take_damage(1)  # Example damage value
+            cannonballs
+            cannonball.remove()  # Remove cannonball after hit
+            break  # Exit loop after collision is detected
+
+        
+class Octopuss:
+    def __init__(self, x, y, space):
+        self.image = octo_image
+        self.rect = self.image.get_rect(center=(x, y))
+        self.health = 100
+        self.max_health = 100
+        self.damage = 10
+        # Create a static body in Pymunk
+        self.body = pymunk.Body(body_type=pymunk.Body.STATIC)
+        self.body.position = (x, y)
+        
+        # Create a shape for the body
+        self.shape = pymunk.Poly.create_box(self.body, (100, 100))
+        
+        # Add the body and shape to the space
+        space.add(self.body, self.shape)
+
+    def take_damage(self, damage):
+        self.health -= damage
+        if self.health < 0:
+            self.health = 0
+
+    def update(self):
+        # Update the rect position based on the body's position
+        self.rect.center = (
+            self.body.position.x,
+            self.body.position.y,
+        )
+
+    def draw(self, surface, camera_x, camera_y):
+        # Call update to ensure rect is in sync with body position
+        self.update()
+
+        # Adjust rect position for camera
+        adjusted_rect = self.rect.move(-camera_x, -camera_y)
+
+        # Draw the octopus image
+        surface.blit(self.image, adjusted_rect)
+
+        # Draw the health bar above the octopus
+        health_bar_width = 100
+        health_bar_height = 10
+        pygame.draw.rect(surface, BLUE, (adjusted_rect.x, adjusted_rect.y - 20, health_bar_width + 2, health_bar_height + 2))  # Background
+        pygame.draw.rect(surface, RED, (adjusted_rect.x, adjusted_rect.y - 20, health_bar_width, health_bar_height))  # Red part
+        pygame.draw.rect(surface, GREEN, (adjusted_rect.x, adjusted_rect.y - 20, (self.health / self.max_health) * health_bar_width, health_bar_height))  # Green part
+
+cube = Box(300, 200, space)
+sprite = Sprite(375, 275)
+octopus = Octopuss(375, 275, space)  # Position the octopus at (600, 300)
+camera_x, camera_y = 0, 0
+octopus.draw(screen, camera_x, camera_y)
 
 def draw_gradient(screen, time):
     # Calculate color values based on time
@@ -219,12 +285,6 @@ def draw_gradient(screen, time):
         color = (r, g, b)
         pygame.draw.line(screen, color, (0, y), (width, y))
 
-
-# Initialize objects
-cube = Box(300, 200, space)
-sprite = Sprite(375, 275)
-water = Water(100, 100)
-camera_x, camera_y = 0, 0
 
 # Health bar variables
 health = 100
@@ -245,6 +305,8 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+
+    check_collision(space, cannonballs)
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT] or keys[pygame.K_a]:
@@ -286,7 +348,8 @@ while True:
     water.draw(screen, camera_x, camera_y, width, height)
     sprite.draw(screen, camera_x, camera_y)
     cube.draw(screen, camera_x, camera_y)
-
+    octopus.draw(screen, camera_x, camera_y)
+    
     # Draw compass
     compass_pos = (width - 150, height - 150)
     screen.blit(compass_circle, compass_pos)
