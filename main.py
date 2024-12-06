@@ -5,6 +5,7 @@ import pymunk
 import pymunk.pygame_util
 import time
 import json
+import random
 
 from constants import *
 
@@ -12,6 +13,13 @@ pygame.init()
 pygame.mixer.init()  
 pygame.mixer.music.load("WaterSplash.mp3")  
 pygame.mixer.music.play(-1)  
+cannon_fire_sound = [
+    pygame.mixer.Sound ("assets/media/sounds/Canon.mp3"),
+    pygame.mixer.Sound ("assets/media/sounds/canon -10.mp3"),
+    pygame.mixer.Sound ("assets/media/sounds/canon -20.mp3"),
+    pygame.mixer.Sound ("assets/media/sounds/canon 10.mp3"),
+    pygame.mixer.Sound ("assets/media/sounds/canon 20.mp3")
+]
 
 width, height = 800, 600
 screen = pygame.display.set_mode((width, height))
@@ -325,10 +333,12 @@ while True:
         if keys[pygame.K_q]:
             cannonball = Cannonball(sprite.rect.centerx, sprite.rect.centery, sprite.cannonball_directionL)
             cannonballs.append(cannonball)
+            random.choice(cannon_fire_sound).play()
             last_shot_time = time.time()
         if keys[pygame.K_e]:
             cannonball = Cannonball(sprite.rect.centerx, sprite.rect.centery, sprite.cannonball_directionR)
             cannonballs.append(cannonball)
+            random.choice(cannon_fire_sound).play()
             last_shot_time = time.time()
 
     water.update()
@@ -366,3 +376,5 @@ while True:
     # Update the display
     pygame.display.flip()
     space.step(dt)
+
+print(cannon_fire_sound)
