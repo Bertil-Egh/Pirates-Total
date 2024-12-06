@@ -158,20 +158,25 @@ class Cannonball:
         self.x += self.speed * math.cos(radians)
         self.y += self.speed * math.sin(radians)
         self.rect.center = (self.x, self.y)
-            
+
     def draw(self, surface):
         surface.blit(self.image, self.rect)
-    
-    def remove(self):
-        print("hai")
 
-def check_collision(space, cannonballs):
-    for i in cannonballs:
-        if i.rect.colliderect(octopus.rect):
-            octopus.take_damage(1)  # Example damage value
-            cannonballs
-            cannonball.remove()  # Remove cannonball after hit
-            break  # Exit loop after collision is detected
+def check_collision(cannonballs, octopus):
+    for cannonball in cannonballs[:]:  # Iterate safely over cannonballs
+        # Calculate the distance between the cannonball and the octopus
+        distance = math.hypot(
+            cannonball.x - octopus.body.position.x,
+            cannonball.y - octopus.body.position.y
+        )
+        
+        # Define a reasonable collision threshold (based on octopus size)
+        collision_threshold = 75  # Adjust as needed
+        
+        # Check for collision
+        if distance < collision_threshold:
+            octopus.take_damage(10)  # Apply damage to the octopus
+            cannonballs.remove(cannonball)  # Remove the cannonball
 
         
 class Octopuss:
@@ -251,8 +256,13 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+    pygame.draw.circle(screen, (255, 255, 0), (int(octopus.body.position.x), int(octopus.body.position.y)), collision_threshold, 1)
 
-    check_collision(space, cannonballs)
+    check_collision(cannonballs, octopus)
+
+    # Update cannonballs
+    for cannonball in cannonballs:
+        cannonball.update()
 
     # Handle key inputs for ship movement and direction
     keys = pygame.key.get_pressed()
@@ -327,8 +337,8 @@ while True:
 #E-Emoji
 #F-Fornite
 #G-Gyatt
-#H-Hashtag
-#I-Imagine dragons
+#H-How much fentanyl is legal in the state of New York?
+#I-I have noting!!!
 #J-Jorkin it
 #K-KSI
 #L-Low taper fade
@@ -344,5 +354,5 @@ while True:
 #V-Vtuber
 #W-W mans
 #X-Xenomorph
-#Y-Yanny
+#Y-Yeet
 #Z-Zack the king
