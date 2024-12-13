@@ -310,7 +310,6 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-    pygame.draw.circle(screen, (255, 255, 0), (int(octopus.body.position.x), int(octopus.body.position.y)), collision_threshold, 1)
 
     check_collision(cannonballs, octopus)
 
