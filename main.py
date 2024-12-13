@@ -208,20 +208,26 @@ class Cannonball:
         radians = math.radians(self.direction)
         self.x += self.speed * math.cos(radians)
         self.y += self.speed * math.sin(radians)
+<<<<<<< Updated upstream
             
+=======
+        self.rect.center = (self.x, self.y)
+
+>>>>>>> Stashed changes
     def draw(self, surface):
         surface.blit(self.image, self.rect)
-    
-    def remove(self):
-        print("hai")
 
-def check_collision(space, cannonballs):
-    for i in cannonballs:
-        if i.rect.colliderect(octopus.rect):
+    def remove(self):
+        # This method can be used if you want to handle removal differently
+        pass
+
+
+def check_collision(space, cannonballs, octopus):
+    for cannonball in cannonballs[:]:  # Iterate over a copy of the list
+        if cannonball.rect.colliderect(octopus.rect):
             octopus.take_damage(1)  # Example damage value
-            cannonballs
-            cannonball.remove()  # Remove cannonball after hit
-            break  # Exit loop after collision is detected
+            cannonballs.remove(cannonball)  # Remove cannonball after hit
+
 
         
 class Octopuss:
@@ -307,7 +313,7 @@ while True:
             pygame.quit()
             sys.exit()
 
-    check_collision(space, cannonballs)
+    check_collision(space, cannonballs, octopus )
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT] or keys[pygame.K_a]:
@@ -379,5 +385,3 @@ while True:
     # Update the display
     pygame.display.flip()
     space.step(dt)
-
-print(cannon_fire_sound)
