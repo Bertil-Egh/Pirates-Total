@@ -25,3 +25,7 @@ MAX_SPEED = 50
 
 # Cannonball settings
 COOLDOWN = 0.5  # seconds
+
+# World size 
+WORLD_WIDTH = 2000
+WORLD_HEIGHT = 2000

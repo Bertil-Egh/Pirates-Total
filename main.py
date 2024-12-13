@@ -56,7 +56,7 @@ ship_image4 = pygame.transform.scale(ship_image4, (100, 100))
 compass_circle = pygame.transform.scale(compass_circle, (150, 150))  # Resize compass circle
 compass_pointer = pygame.transform.scale(compass_pointer, (120, 120))  # Resize compass pointer
 octo_image = pygame.transform.scale(octo_image, (150, 150))
-pygame.display.set_caption("Gorms Program")
+pygame.display.set_caption("Gorms, Elis OCH Toshis Program")
 clock = pygame.time.Clock()
 
 # Movement variables
@@ -124,6 +124,8 @@ class Sprite:
             self.image = ship_image4
             self.cannonball_directionR = 0
             self.cannonball_directionL = 180
+
+            
 
 class Water:
     def __init__(self, x, y):
@@ -206,7 +208,6 @@ class Cannonball:
         radians = math.radians(self.direction)
         self.x += self.speed * math.cos(radians)
         self.y += self.speed * math.sin(radians)
-        self.rect.center = (self.x, self.y)
             
     def draw(self, surface):
         surface.blit(self.image, self.rect)
@@ -323,9 +324,11 @@ while True:
     sprite.body.angle = math.radians(direction)
     sprite.move(speed, direction)
 
-    # Update camera position
-    camera_x = sprite.body.position.x - width // 2 + sprite.rect.width // 2
-    camera_y = sprite.body.position.y - height // 2 + sprite.rect.width // 2
+   # Update camera position
+    camera_x = max(0, min(sprite.body.position.x - width // 2, WORLD_WIDTH - width))
+    camera_y = max(0, min(sprite.body.position.y - height // 2, WORLD_HEIGHT - height))
+
+    
 
     # Handle shooting
     if time.time() - last_shot_time > cooldown:
