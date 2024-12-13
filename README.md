@@ -1,10 +1,32 @@
 # Pirates Total
  
 cool pirates taking over the carribean world
-Pirate game:
 steer your skiff to different coastal cities and try to raid them.
 manage and grow your crew, your food and your economy.
 become the mightiest pirate.
+
+## Requirements
+
+This project uses a virtual environment to manage dependencies.
+
+### Setup Instructions
+
+1. Clone the repository:
+   ```bash
+   gh repo clone bertilegh/Pirates-Total
+   cd my_project
+   ```
+2. Activate the virutal environment:
+    On Windows:
+    ```bash
+    myenv\Scripts\activate
+    ```
+3. Run the game:
+    ```bash
+    python main.py
+    ```
+
+Make sure to deactive the virutal environment when you're done.
 
 ## Todo:
 
