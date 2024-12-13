@@ -6,8 +6,21 @@ import pymunk.pygame_util
 import time
 import json
 import random
+import sqlite3
 
 from constants import *
+
+conn = sqlite3.connect('player.db')
+
+cursor = conn.cursor()
+
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS player (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    age INTEGER NOT NULL
+)
+''')
 
 pygame.init()
 pygame.mixer.init()  
@@ -208,12 +221,8 @@ class Cannonball:
         radians = math.radians(self.direction)
         self.x += self.speed * math.cos(radians)
         self.y += self.speed * math.sin(radians)
-<<<<<<< Updated upstream
-            
-=======
         self.rect.center = (self.x, self.y)
 
->>>>>>> Stashed changes
     def draw(self, surface):
         surface.blit(self.image, self.rect)
 
