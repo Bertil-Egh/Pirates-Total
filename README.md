@@ -11,11 +11,13 @@ This project uses a virtual environment to manage dependencies.
 
 ### Setup Instructions
 
-1. Clone the repository:
+1. Clone the repository, either by git:
    ```bash
    gh repo clone bertilegh/Pirates-Total
    cd my_project
    ```
+   or by web browser: https://github.com/bertilegh/Pirates-Total/archive/refs/heads/main.zip
+   If you download it via web browser you have to unzip the file contents.
 2. Activate the virutal environment:
     On Windows:
     ```bash
