@@ -13,8 +13,8 @@ This project uses a virtual environment to manage dependencies.
 
 1. Clone the repository, either by git:
    ```bash
-   gh repo clone bertilegh/Pirates-Total
-   cd my_project
+   git clone bertilegh/Pirates-Total
+   cd Pirates-Total
    ```
    or by web browser: https://github.com/bertilegh/Pirates-Total/archive/refs/heads/main.zip
    If you download it via web browser you have to unzip the file contents.
