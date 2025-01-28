@@ -5,16 +5,36 @@ import pymunk
 import pymunk.pygame_util
 import time
 import json
+import random
+import sqlite3
+
+from constants import *
+
+conn = sqlite3.connect('player.db')
+
+cursor = conn.cursor()
+
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS player (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    age INTEGER NOT NULL
+)
+''')
 
 pygame.init()
 pygame.mixer.init()  
 pygame.mixer.music.load("WaterSplash.mp3")  
 pygame.mixer.music.play(-1)  
+cannon_fire_sound = [
+    pygame.mixer.Sound ("assets/media/sounds/Canon.mp3"),
+    pygame.mixer.Sound ("assets/media/sounds/canon -10.mp3"),
+    pygame.mixer.Sound ("assets/media/sounds/canon -20.mp3"),
+    pygame.mixer.Sound ("assets/media/sounds/canon 10.mp3"),
+    pygame.mixer.Sound ("assets/media/sounds/canon 20.mp3")
+]
 
 width, height = 800, 600
-MAP_WIDTH = 1600  # Width of the map
-MAP_HEIGHT = 1200  # Height of the map
-WATER_TILE_SIZE = 51
 screen = pygame.display.set_mode((width, height))
 
 tick = 0
@@ -49,16 +69,8 @@ ship_image4 = pygame.transform.scale(ship_image4, (100, 100))
 compass_circle = pygame.transform.scale(compass_circle, (150, 150))  # Resize compass circle
 compass_pointer = pygame.transform.scale(compass_pointer, (120, 120))  # Resize compass pointer
 octo_image = pygame.transform.scale(octo_image, (150, 150))
-pygame.display.set_caption("Gorms Program")
+pygame.display.set_caption("Gorms, Elis OCH Toshis Program")
 clock = pygame.time.Clock()
-
-# Constants for colors
-WHITE = (255, 255, 255)
-BLUE = (0, 0, 255)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLACK = (0, 0)
-WATERBLUE = (0, 195, 245)
 
 # Movement variables
 speed = 4
@@ -125,6 +137,8 @@ class Sprite:
             self.image = ship_image4
             self.cannonball_directionR = 0
             self.cannonball_directionL = 180
+
+            
 
 class Water:
     def __init__(self, x, y):
@@ -228,6 +242,7 @@ def check_collision(cannonballs, octopus):
             octopus.take_damage(10)  # Apply damage to the octopus
             cannonballs.remove(cannonball)  # Remove the cannonball
 
+
         
 class Octopuss:
     def __init__(self, x, y, space):
@@ -278,6 +293,7 @@ class Octopuss:
 cube = Box(300, 200, space)
 sprite = Sprite(375, 275)
 octopus = Octopuss(375, 275, space)  # Position the octopus at (600, 300)
+water = Water(150, 100)
 camera_x, camera_y = 0, 0
 octopus.draw(screen, camera_x, camera_y)
 
@@ -317,6 +333,7 @@ while True:
     for cannonball in cannonballs:
         cannonball.update()
 
+
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT] or keys[pygame.K_a]:
         direction -= 2
@@ -332,9 +349,11 @@ while True:
     sprite.body.angle = math.radians(direction)
     sprite.move(speed, direction)
 
-    # Update camera position
-    camera_x = sprite.body.position.x - width // 2 + sprite.rect.width // 2
-    camera_y = sprite.body.position.y - height // 2 + sprite.rect.width // 2
+   # Update camera position
+    camera_x = max(0, min(sprite.body.position.x - width // 2, WORLD_WIDTH - width))
+    camera_y = max(0, min(sprite.body.position.y - height // 2, WORLD_HEIGHT - height))
+
+    
 
     # Handle shooting
     if time.time() - last_shot_time > cooldown:
@@ -342,10 +361,12 @@ while True:
         if keys[pygame.K_q]:
             cannonball = Cannonball(sprite.rect.centerx, sprite.rect.centery, sprite.cannonball_directionL)
             cannonballs.append(cannonball)
+            random.choice(cannon_fire_sound).play()
             last_shot_time = time.time()
         if keys[pygame.K_e]:
             cannonball = Cannonball(sprite.rect.centerx, sprite.rect.centery, sprite.cannonball_directionR)
             cannonballs.append(cannonball)
+            random.choice(cannon_fire_sound).play()
             last_shot_time = time.time()
 
     water.update()
